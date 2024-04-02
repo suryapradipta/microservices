@@ -20,7 +20,7 @@ public class InventoryServiceApplication {
     public CommandLineRunner loadData(InventoryRepository inventoryRepository) {
         return (args) -> {
             inventoryRepository.save(new Inventory(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE, "A", 10));
-            inventoryRepository.save(new Inventory(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE, "B", 20));
+            inventoryRepository.save(new Inventory(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE, "B", 0));
         };
     }
 }
