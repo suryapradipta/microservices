@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: portfolio-service
+#  profiles:
+#    active: ${SPRING_PROFILES_ACTIVE:dev}
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:portfolio-service}?currentSchema=portfolio
+    username: ${DB_USERNAME:codebots}
+    password: ${DB_PASSWORD:bots}
+    pool:
+      initial-size: 10
+      max-size: 50
+      max-idle-time: 30m
+  main:
+    allow-bean-definition-overriding: true
+#  flyway:
+#    locations: classpath:db/migration
+#  security:
+#    user:
+#      name: ${SECURITY_USER_NAME}
+#      password: ${SECURITY_USER_PASSWORD}
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:INFO}
+    com.example.portfolioservice: ${LOGGING_LEVEL_APP:DEBUG}
+    org.flywaydb: DEBUG
