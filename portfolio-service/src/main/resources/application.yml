@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: portfolio-service
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/portfolio_service?currentSchema=portfolio_service
+    username: codebots
+    password: bots
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/portfolio_service?currentSchema=portfolio_service
+    user: codebots
+    password: bots
+    locations: classpath:db/migration
+
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
