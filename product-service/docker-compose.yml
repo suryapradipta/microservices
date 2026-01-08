@@ -1,0 +1,26 @@
+#docker compose file version
+version: '4'
+services:
+  mongodb:
+    image: mongo:7.0.5
+    container_name: mongodb # Name of the container, so we can easily identify it
+    ports:
+      - "28017:27017" # Expose MongoDB on port 28017, mapping it to the default MongoDB port 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: product_service
+
+    # MongoDB running on the container [line 6], whenever we stop the container, the data will be lost.
+    # To persist the data, we can use the volume.
+    # We can use the volume to store the data outside the container.
+    # Store the data on the file system of the host machine.
+#    volumes:
+#      - mongodb_data:/data/db
+    volumes:
+      - ./data:/data/db
+
+
+
+#volumes:
+#  mongodb_data:
