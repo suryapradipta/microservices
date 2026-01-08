@@ -6,3 +6,6 @@
 /order-service/data
 /.idea
 order-service/.env
+inventory-service/.env
+/inventory-service/data
+inventory-service/.env
