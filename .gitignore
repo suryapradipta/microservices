@@ -3,3 +3,6 @@
 /.idea
 .idea/misc.xml
 .idea/modules.xml
+/order-service/data
+/.idea
+order-service/.env
