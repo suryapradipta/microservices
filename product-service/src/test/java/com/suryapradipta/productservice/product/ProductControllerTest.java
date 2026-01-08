@@ -1,29 +1,22 @@
-package com.suryapradipta.productservice;
+package com.suryapradipta.productservice.product;
 
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Import;
 import org.testcontainers.mongodb.MongoDBContainer;
 
-@Import(TestcontainersConfiguration.class)
-// By default, the application is running on localhost:8080
-// The port is randomly assigned by Spring Boot
-// This for testing the application in a real environment
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class ProductServiceApplicationTests {
+import static org.junit.jupiter.api.Assertions.*;
 
-    // This annotation is used to create a MongoDB container
-    // This will automatically assigning the mongodb host and port from application.properties
-    // We don't need to specify the mongodb uri, springboot will automatically handle this
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class ProductControllerTest {
+
     @ServiceConnection
     public static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0.5");
 
-    // Whenever the test is run, the port is assigned to the variable
     @LocalServerPort
     private Integer port;
 
@@ -37,10 +30,8 @@ class ProductServiceApplicationTests {
         RestAssured.port = port;
     }
 
-
     @Test
-    @Order(1)
-    void shouldCreate() {
+    void createProduct() {
         String requestBody = """
                 {
                    "name": "Product 1",
@@ -62,35 +53,68 @@ class ProductServiceApplicationTests {
                 .body("price", Matchers.equalTo(19));
     }
 
-    // TODO: not working, got null pointer when delete
     @Test
-    void shouldCreateAndDelete() {
+    void getAllProducts() {
+        // Create a product first
         String requestBody = """
-                                {
-                                   "name": "Product 1",
-                                   "description": "Product 1 description",
-                                   "price": 19
-                                }
-                            """;
+                {
+                   "name": "Product 2",
+                   "description": "Product 2 description",
+                   "price": 29
+                 }
+                """;
 
-        Response response = RestAssured.given()
+        RestAssured.given()
+                .contentType("application/json")
+                .body(requestBody)
+                .when()
+                .post("/api/products")
+                .then()
+                .statusCode(201);
+
+        // Get all products and verify at least one exists
+        RestAssured.given()
+                .when()
+                .get("/api/products")
+                .then()
+                .statusCode(200)
+                .body("size()", Matchers.greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    void deleteProduct() {
+        // Create a product and extract its id
+        String requestBody = """
+                {
+                   "name": "Product 3",
+                   "description": "Product 3 description",
+                   "price": 39
+                 }
+                """;
+
+        String productId = RestAssured.given()
                 .contentType("application/json")
                 .body(requestBody)
                 .when()
                 .post("/api/products")
                 .then()
                 .statusCode(201)
-                .body("id", Matchers.notNullValue())
                 .extract()
-                .response();
+                .path("id");
 
-        String productId = response.jsonPath().getString("id");
-        Assertions.assertNotNull(productId, "Product ID should not be null");
-
+        // Delete the product
         RestAssured.given()
                 .when()
-                .delete("/api/products/" + productId)
+                .delete("/api/products/{id}", productId)
                 .then()
                 .statusCode(204);
+
+        // Verify the product is deleted
+        RestAssured.given()
+                .when()
+                .get("/api/products")
+                .then()
+                .statusCode(200)
+                .body("id", Matchers.not(Matchers.hasItem(productId)));
     }
 }
