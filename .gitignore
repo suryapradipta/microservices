@@ -9,3 +9,5 @@ order-service/.env
 inventory-service/.env
 /inventory-service/data
 inventory-service/.env
+/api-gateway/data
+api-gateway/.env
