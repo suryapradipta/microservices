@@ -1,5 +1,6 @@
 package com.suryapradipta.apigateway.routes;
 
+import org.springframework.cloud.gateway.server.mvc.filter.CircuitBreakerFilterFunctions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -7,7 +8,10 @@ import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
 
+import java.net.URI;
+
 import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.uri;
+import static org.springframework.cloud.gateway.server.mvc.filter.FilterFunctions.setPath;
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
 
@@ -19,16 +23,31 @@ public class Routes {
                 .route(RequestPredicates.path("/api/products/**"), http())
                 .before(uri("http://localhost:8080"))
                 .build()
+                .and(route("product_service_swagger")
+                        .route(RequestPredicates.path("/aggregate/product-service/v3/api-docs"), http())
+                        .before(uri("http://localhost:8080"))
+                        .filter(setPath("/v3/api-docs"))
+                        .build())
 
 
                 .and(route("order_service")
                         .route(RequestPredicates.path("/api/orders/**"), http())
                         .before(uri("http://localhost:8081"))
                         .build())
+                .and(route("order_service_swagger")
+                        .route(RequestPredicates.path("/aggregate/order-service/v3/api-docs"), http())
+                        .before(uri("http://localhost:8081"))
+                        .filter(setPath("/v3/api-docs"))
+                        .build())
 
                 .and(route("inventory_service")
                         .route(RequestPredicates.path("/api/inventories/**"), http())
                         .before(uri("http://localhost:8082"))
+                        .build())
+                .and(route("inventory_service_swagger")
+                        .route(RequestPredicates.path("/aggregate/inventory-service/v3/api-docs"), http())
+                        .before(uri("http://localhost:8080"))
+                        .filter(setPath("/v3/api-docs"))
                         .build())
 
                 .and(route("fallbackRoute")
